@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/form'
 import Image from 'next/image'
 import Link from 'next/link'
+import { createAccount } from '@/lib/actions/user.actions'
 
 type FormType = 'sign-in' | 'sign-up'
 
@@ -37,6 +38,7 @@ const AuthForm = (props: AuthFormProps) => {
 
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [accountId, setAccountId] = useState(null)
 
   // 表单验证
   const formSchema = authFormSchema(type)
@@ -50,8 +52,26 @@ const AuthForm = (props: AuthFormProps) => {
     },
   })
   // 提交处理
-  const onSubmit = async (valurs: z.infer<typeof formSchema>) => {
-    console.log(valurs)
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true)
+    setErrorMessage('')
+
+    try {
+      if (type === 'sign-up') {
+        // 注册
+        const user = await createAccount({
+          fullName: values.fullName || '',
+          email: values.email,
+        })
+        setAccountId(user.accountId)
+      } else {
+        // 登录
+      }
+    } catch (error) {
+      setErrorMessage('注册失败，请重试')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
