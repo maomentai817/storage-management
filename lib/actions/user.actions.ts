@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/appwrite'
 import { appwriteConfig } from '@/lib/appwrite/config'
 import { ID, Query } from 'node-appwrite'
 import { handleError, parseStringify } from '@/lib/utils'
+import { cookies } from 'next/headers'
 
 // 创建账户流程
 
@@ -21,7 +22,7 @@ const getUserByEmail = async (email: string) => {
 }
 
 // 发送 OPT 验证码
-const sendEmailOTP = async ({ email }: { email: string }) => {
+export const sendEmailOTP = async ({ email }: { email: string }) => {
   const { account } = await createAdminClient()
 
   try {
@@ -66,4 +67,29 @@ export const createAccount = async ({
   }
 
   return parseStringify({ accountId })
+}
+
+// 验证 OPT 验证码
+export const verifySecret = async ({
+  accountId,
+  password,
+}: {
+  accountId: string
+  password: string
+}) => {
+  try {
+    const { account } = await createAdminClient()
+
+    const session = await account.createSession(accountId, password)
+    ;(await cookies()).set('appwrite-session', session.secret, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    })
+
+    return parseStringify({ sessionId: session.$id })
+  } catch (error) {
+    handleError(error, 'Failed to verify secret')
+  }
 }
