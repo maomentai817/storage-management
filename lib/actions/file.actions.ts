@@ -1,9 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { ID } from 'node-appwrite'
+import { ID, Query } from 'node-appwrite'
 import { InputFile } from 'node-appwrite/file'
 
+import { getCurrentUser } from '@/lib/actions/user.actions'
 import { createAdminClient } from '@/lib/appwrite'
 import { appwriteConfig } from '@/lib/appwrite/config'
 import {
@@ -59,5 +60,70 @@ export const uploadFile = async (props: UploadFileProps) => {
     return parseStringify(newFile)
   } catch (error) {
     handleError(error, '上传文件失败')
+  }
+}
+
+// 创建 query
+const createQueries = (
+  currentUser: any,
+  types: string[],
+  searchText: string,
+  sort: string,
+  limit?: number
+) => {
+  const queries = [
+    Query.or([
+      Query.equal('owner', [currentUser.$id]),
+      Query.contains('users', [currentUser.email]),
+    ]),
+  ]
+
+  if (types.length > 0) {
+    queries.push(Query.equal('type', types))
+  }
+  if (searchText) {
+    queries.push(Query.contains('name', searchText))
+  }
+  if (limit) {
+    queries.push(Query.limit(limit))
+  }
+
+  if (sort) {
+    const [sortBy, orderBy] = sort.split('-')
+
+    queries.push(
+      orderBy === 'asc' ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy)
+    )
+  }
+
+  return queries
+}
+
+// 获取文件列表
+export const getFiles = async ({
+  types = [],
+  searchText = '',
+  sort = '$createdAt-desc',
+  limit,
+}: GetFilesProps) => {
+  const { databases } = await createAdminClient()
+
+  try {
+    const currentUser = await getCurrentUser()
+    if (!currentUser) {
+      throw new Error('用户未登录')
+    }
+
+    const queries = createQueries(currentUser, types, searchText, sort, limit)
+
+    const files = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      queries
+    )
+
+    return parseStringify(files)
+  } catch (error) {
+    handleError(error, '获取文件列表失败')
   }
 }
