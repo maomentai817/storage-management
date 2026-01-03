@@ -1,26 +1,26 @@
 export const navItems = [
   {
-    name: 'Dashboard',
+    name: '仪表盘',
     icon: '/assets/icons/dashboard.svg',
     url: '/',
   },
   {
-    name: 'Documents',
+    name: '文档',
     icon: '/assets/icons/documents.svg',
     url: '/documents',
   },
   {
-    name: 'Images',
+    name: '图片',
     icon: '/assets/icons/images.svg',
     url: '/images',
   },
   {
-    name: 'Media',
+    name: '媒体',
     icon: '/assets/icons/video.svg',
     url: '/media',
   },
   {
-    name: 'Others',
+    name: '其他',
     icon: '/assets/icons/others.svg',
     url: '/others',
   },

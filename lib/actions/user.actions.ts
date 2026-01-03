@@ -6,6 +6,7 @@ import { ID, Query } from 'node-appwrite'
 import { handleError, parseStringify } from '@/lib/utils'
 import { cookies } from 'next/headers'
 import { avatarPlaceholderUrl } from '@/constants'
+import { redirect } from 'next/navigation'
 
 // 创建账户流程
 
@@ -112,5 +113,36 @@ export const getCurrentUser = async () => {
     return parseStringify(user.documents[0])
   } catch (error) {
     handleError(error, 'Failed to get current user')
+  }
+}
+
+// 注销用户
+export const signOutUser = async () => {
+  try {
+    const { account } = await createSessionClient()
+
+    await account.deleteSession('current')
+    ;(await cookies()).delete('appwrite-session')
+  } catch (error) {
+    handleError(error, 'Failed to sign out user')
+  } finally {
+    redirect('/sign-in')
+  }
+}
+
+// 登录
+export const signInUser = async ({ email }: { email: string }) => {
+  try {
+    const existingUser = await getUserByEmail(email)
+
+    if (existingUser) {
+      // 存在用户, 发送验证码
+      await sendEmailOTP({ email })
+      return parseStringify({ accountId: existingUser.accountId })
+    }
+
+    return parseStringify({ accountId: null, error: 'User not found' })
+  } catch (error) {
+    handleError(error, 'Failed to sign in user')
   }
 }

@@ -1,25 +1,22 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Separator } from '@/components/ui/separator'
 import { navItems } from '@/constants'
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import FileUpLoader from '@/components/FileUpLoader'
+import { signOutUser } from '@/lib/actions/user.actions'
 import { Button } from '@/components/ui/button'
+import FileUpLoader from '@/components/FileUpLoader'
 
 interface Props {
   $id: string
@@ -34,9 +31,6 @@ const MobileNavigation = (props: Props) => {
 
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-
-  // 退出登录
-  const signOutUser = () => {}
 
   return (
     <header className='mobile-header'>
