@@ -1,16 +1,25 @@
 import React from 'react'
-import Search from '@/components/Search'
-import FileUpLoader from '@/components/FileUpLoader'
+
 import Image from 'next/image'
+
+import FileUpLoader from '@/components/FileUpLoader'
+import Search from '@/components/Search'
 import { Button } from '@/components/ui/button'
 import { signOutUser } from '@/lib/actions/user.actions'
 
-const Header = () => {
+interface Props {
+  userId: string
+  accountId: string
+}
+
+const Header = (props: Props) => {
+  const { userId, accountId } = props
+
   return (
     <header className='header'>
       <Search />
       <div className='header-wrapper'>
-        <FileUpLoader />
+        <FileUpLoader ownerId={userId} accountId={accountId} />
         <form
           action={async () => {
             'use server'

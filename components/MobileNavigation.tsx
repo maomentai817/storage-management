@@ -1,22 +1,23 @@
 'use client'
 
 import React, { useState } from 'react'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
+import FileUpLoader from '@/components/FileUpLoader'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   Sheet,
   SheetContent,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { usePathname } from 'next/navigation'
-import { Separator } from '@/components/ui/separator'
 import { navItems } from '@/constants'
-import { cn } from '@/lib/utils'
 import { signOutUser } from '@/lib/actions/user.actions'
-import { Button } from '@/components/ui/button'
-import FileUpLoader from '@/components/FileUpLoader'
+import { cn } from '@/lib/utils'
 
 interface Props {
   $id: string
@@ -98,7 +99,7 @@ const MobileNavigation = (props: Props) => {
           <Separator className='my-5 bg-light-200/20' />
 
           <div className='flex flex-col justify-between gap-5 pb-5'>
-            <FileUpLoader />
+            <FileUpLoader ownerId={ownerId} accountId={accountId} />
             <Button
               type='submit'
               className='mobile-sign-out-button'

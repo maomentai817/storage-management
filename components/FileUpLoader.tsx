@@ -1,11 +1,17 @@
 'use client'
 
 import React, { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Button } from '@/components/ui/button'
-import { cn, convertFileToUrl, getFileType } from '@/lib/utils'
-import { usePathname } from 'next/navigation'
+
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import { useDropzone } from 'react-dropzone'
+
+import { Button } from '@/components/ui/button'
+import { MAX_FILE_SIZE } from '@/constants'
+import { useToast } from '@/hooks/use-toast'
+import { uploadFile } from '@/lib/actions/file.actions'
+import { cn, convertFileToUrl, getFileType } from '@/lib/utils'
+
 import Thumbnail from './Thumbnail'
 
 interface Props {
@@ -16,16 +22,51 @@ interface Props {
 
 const FileUpLoader = (props: Props) => {
   const { ownerId, accountId, className } = props
-  const pathname = usePathname()
+  const path = usePathname()
+  const { toast } = useToast()
 
   // 文件信息
   const [files, setFiles] = useState<File[]>([])
 
   // 接收文件上传
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    setFiles(acceptedFiles)
-    // 上传行为
-  }, [])
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      setFiles(acceptedFiles)
+      // 上传行为: 一个 Promise 数组
+      const uploadPromises = acceptedFiles.map(async (file) => {
+        // 文件超大 -> 移除并提示
+        if (file.size > MAX_FILE_SIZE) {
+          setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name))
+
+          return toast({
+            description: (
+              <p className='body-2 text-white'>
+                <span className='font-semibold'>{file.name}</span>{' '}
+                超过最大文件大小限制. 最大文件大小为 50MB.
+              </p>
+            ),
+            className: 'error-toast',
+          })
+        }
+
+        return uploadFile({
+          file,
+          ownerId,
+          accountId,
+          path,
+        }).then((uploadedFile) => {
+          if (uploadedFile) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((f) => f.name !== file.name)
+            )
+          }
+        })
+      })
+
+      await Promise.all(uploadPromises)
+    },
+    [ownerId, accountId, path]
+  )
 
   // 文件上传挂载
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -56,7 +97,7 @@ const FileUpLoader = (props: Props) => {
       {/* 上传文件预览 */}
       {files.length > 0 && (
         <ul className='uploader-preview-list'>
-          <h4 className='h4 text-light-100'>Uploading</h4>
+          <h4 className='h4 text-light-100'>上传中...</h4>
 
           {files.map((file, index) => {
             const { type, extension } = getFileType(file.name)
@@ -95,11 +136,6 @@ const FileUpLoader = (props: Props) => {
             )
           })}
         </ul>
-      )}
-      {isDragActive ? (
-        <p>Drop the files here ...</p>
-      ) : (
-        <p>Drag 'n' drop some files here, or click to select files</p>
       )}
     </div>
   )

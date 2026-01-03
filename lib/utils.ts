@@ -85,7 +85,10 @@ export const formatDateTime = (isoString: string | null | undefined) => {
 }
 
 // 获取文件图标
-export const getFileIcon = (extension: string | undefined, type: string) => {
+export const getFileIcon = (
+  extension: string | undefined,
+  type: FileType | string
+) => {
   switch (extension) {
     // Document
     case 'pdf':
