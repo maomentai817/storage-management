@@ -127,3 +127,31 @@ export const getFiles = async ({
     handleError(error, '获取文件列表失败')
   }
 }
+
+// 重命名文件
+export const renameFile = async ({
+  fileId,
+  name,
+  extension,
+  path,
+}: RenameFileProps) => {
+  const { databases } = await createAdminClient()
+
+  try {
+    const newName = `${name}.${extension}`
+    const updatedFile = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId,
+      {
+        name: newName,
+      }
+    )
+
+    // 刷新
+    revalidatePath(path)
+    return parseStringify(updatedFile)
+  } catch (error) {
+    handleError(error, '重命名文件失败')
+  }
+}

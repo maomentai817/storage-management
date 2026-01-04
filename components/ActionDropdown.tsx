@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -23,23 +24,25 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { actionsDropdownItems } from '@/constants'
+import { renameFile } from '@/lib/actions/file.actions'
 import { constructDownloadUrl } from '@/lib/utils'
 
 const ActionDropdown = ({ file }: { file: any }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [action, setAction] = useState<ActionType | null>(null)
-  const [name, setName] = useState(file.name)
+  const [name, setName] = useState(file.name.replace(`.${file.extension}`, ''))
   // action content 部分 confirm loading 状态
   const [isLoading, setIsLoading] = useState(false)
   // share 部分分享 email 输入框
   const [email, setEmail] = useState('')
+  const path = usePathname()
 
   const closeAllModals = () => {
     setIsModalOpen(false)
     setIsDropdownOpen(false)
     setAction(null)
-    setName(file.name)
+    setName(file.name.replace(`.${file.extension}`, ''))
     setEmail('')
   }
 
@@ -49,7 +52,13 @@ const ActionDropdown = ({ file }: { file: any }) => {
     let success = false
 
     const actions = {
-      rename: () => true,
+      rename: () =>
+        renameFile({
+          fileId: file.$id,
+          name,
+          extension: file.extension,
+          path,
+        }),
       share: () => true,
       delete: () => true,
     }
@@ -71,11 +80,14 @@ const ActionDropdown = ({ file }: { file: any }) => {
             {label}
           </DialogTitle>
           {value === 'rename' && (
-            <Input
-              type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <>
+              <p className='body-2'>暂不支持修改文件拓展名</p>
+              <Input
+                type='text'
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </>
           )}
           {value === 'details' && 'details'}
           {value === 'share' && 'share'}

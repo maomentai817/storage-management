@@ -1,11 +1,12 @@
-import { clsx, type ClassValue } from 'clsx'
+import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+
 import {
+  audioExtensions,
   documentExtensions,
   imageExtensions,
-  videoExtensions,
-  audioExtensions,
   monthNames,
+  videoExtensions,
 } from '@/constants'
 
 export function cn(...inputs: ClassValue[]) {
@@ -210,4 +211,12 @@ export const getFileTypesParams = (type: string) => {
     default:
       return ['document']
   }
+}
+
+// 计算 files 大小总和
+export const calculateTotalSize = (files: any) => {
+  if (!files || files.total === 0) return '0 MB'
+  return convertFileSize(
+    files.documents.reduce((acc, file) => acc + file.size, 0)
+  )
 }

@@ -5,7 +5,7 @@ import { Models } from 'node-appwrite'
 import Card from '@/components/Card'
 import Sort from '@/components/Sort'
 import { getFiles } from '@/lib/actions/file.actions'
-import { getFileTypesParams } from '@/lib/utils'
+import { calculateTotalSize, getFileTypesParams } from '@/lib/utils'
 
 interface SegmentParams {
   type: string
@@ -31,7 +31,7 @@ const page = async (props: SearchParamProps) => {
         <div className='total-size-section'>
           <p className='body-1'>
             共 <span className='h5'>{files.total}</span> 个文件, 占用{' '}
-            <span className='h5'>0 MB</span>
+            <span className='h5'>{calculateTotalSize(files)}</span>
           </p>
 
           <div className='sort-container'>
