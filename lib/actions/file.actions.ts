@@ -181,3 +181,30 @@ export const updateFileUsers = async ({
     handleError(error, '更新文件用户失败')
   }
 }
+
+// 删除文件
+export const deleteFile = async ({
+  fileId,
+  bucketFileId,
+  path,
+}: DeleteFileProps) => {
+  const { storage, databases } = await createAdminClient()
+
+  try {
+    const deleteFile = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId
+    )
+
+    if (deleteFile) {
+      await storage.deleteFile(appwriteConfig.bucketId, bucketFileId)
+    }
+
+    // 刷新
+    revalidatePath(path)
+    return parseStringify({ status: 'success' })
+  } catch (error) {
+    handleError(error, '删除文件失败')
+  }
+}

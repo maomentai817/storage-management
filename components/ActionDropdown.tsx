@@ -25,7 +25,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { actionsDropdownItems } from '@/constants'
-import { renameFile, updateFileUsers } from '@/lib/actions/file.actions'
+import {
+  deleteFile,
+  renameFile,
+  updateFileUsers,
+} from '@/lib/actions/file.actions'
 import { constructDownloadUrl } from '@/lib/utils'
 
 const ActionDropdown = ({ file }: { file: any }) => {
@@ -66,7 +70,12 @@ const ActionDropdown = ({ file }: { file: any }) => {
           emails,
           path,
         }),
-      delete: () => true,
+      delete: () =>
+        deleteFile({
+          fileId: file.$id,
+          bucketFileId: file.bucketFileId,
+          path,
+        }),
     }
 
     success = await actions[action.value as keyof typeof actions]()
