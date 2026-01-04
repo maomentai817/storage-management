@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { FileDetails, ShareInput } from '@/components/ActionModalContent'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,10 +25,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { actionsDropdownItems } from '@/constants'
-import { renameFile } from '@/lib/actions/file.actions'
+import { renameFile, updateFileUsers } from '@/lib/actions/file.actions'
 import { constructDownloadUrl } from '@/lib/utils'
-
-import { FileDetails } from './ActionModalContent'
 
 const ActionDropdown = ({ file }: { file: any }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -37,7 +36,7 @@ const ActionDropdown = ({ file }: { file: any }) => {
   // action content 部分 confirm loading 状态
   const [isLoading, setIsLoading] = useState(false)
   // share 部分分享 email 输入框
-  const [email, setEmail] = useState('')
+  const [emails, setEmails] = useState<string[]>([])
   const path = usePathname()
 
   const closeAllModals = () => {
@@ -45,7 +44,7 @@ const ActionDropdown = ({ file }: { file: any }) => {
     setIsDropdownOpen(false)
     setAction(null)
     setName(file.name.replace(`.${file.extension}`, ''))
-    setEmail('')
+    setEmails([])
   }
 
   const handleAction = async () => {
@@ -61,7 +60,12 @@ const ActionDropdown = ({ file }: { file: any }) => {
           extension: file.extension,
           path,
         }),
-      share: () => true,
+      share: () =>
+        updateFileUsers({
+          fileId: file.$id,
+          emails,
+          path,
+        }),
       delete: () => true,
     }
 
@@ -69,6 +73,20 @@ const ActionDropdown = ({ file }: { file: any }) => {
 
     if (success) closeAllModals()
     setIsLoading(false)
+  }
+
+  // 分享模块 - 移除分享人
+  const handleRemoveUser = async (email: string) => {
+    const updatedEmails = emails.filter((e) => e !== email)
+
+    const success = await updateFileUsers({
+      fileId: file.$id,
+      emails: updatedEmails,
+      path,
+    })
+
+    if (success) setEmails(updatedEmails)
+    closeAllModals()
   }
 
   // 模态框渲染
@@ -83,7 +101,7 @@ const ActionDropdown = ({ file }: { file: any }) => {
           </DialogTitle>
           {value === 'rename' && (
             <>
-              <p className='body-2'>暂不支持修改文件拓展名</p>
+              <p className='subtitle-2'>暂不支持修改文件拓展名</p>
               <Input
                 type='text'
                 value={name}
@@ -92,7 +110,13 @@ const ActionDropdown = ({ file }: { file: any }) => {
             </>
           )}
           {value === 'details' && <FileDetails file={file} />}
-          {value === 'share' && 'share'}
+          {value === 'share' && (
+            <ShareInput
+              file={file}
+              onInputChange={setEmails}
+              onRemove={handleRemoveUser}
+            />
+          )}
           {value === 'delete' && (
             <p className='delete-confirmation'>
               您确定要删除

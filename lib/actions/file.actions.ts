@@ -155,3 +155,29 @@ export const renameFile = async ({
     handleError(error, '重命名文件失败')
   }
 }
+
+// 更新文件用户
+export const updateFileUsers = async ({
+  fileId,
+  emails,
+  path,
+}: UpdateFileUsersProps) => {
+  const { databases } = await createAdminClient()
+
+  try {
+    const updatedFile = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId,
+      {
+        users: emails,
+      }
+    )
+
+    // 刷新
+    revalidatePath(path)
+    return parseStringify(updatedFile)
+  } catch (error) {
+    handleError(error, '更新文件用户失败')
+  }
+}
