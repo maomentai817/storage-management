@@ -5,15 +5,12 @@ import Link from 'next/link'
 import ActionDropdown from '@/components/ActionDropdown'
 import FormattedDateTime from '@/components/FormattedDateTime'
 import Thumbnail from '@/components/Thumbnail'
-import { getCurrentUser } from '@/lib/actions/user.actions'
 import { convertFileSize } from '@/lib/utils'
 
-const Card = async ({ file }: { file: any }) => {
-  const currentUser = await getCurrentUser()
-
+const Card = ({ file }: { file: any }) => {
   return (
     <Link href={file.url} target='_blank' className='file-card'>
-      <div className='fle justify-between'>
+      <div className='flex justify-between'>
         <Thumbnail
           type={file.type}
           extension={file.extension}
@@ -34,9 +31,6 @@ const Card = async ({ file }: { file: any }) => {
           date={file.$createdAt}
           className='body-2 text-light-100'
         />
-        <p className='caption line-clamp-1 text-light-200'>
-          By: {currentUser?.fullName}
-        </p>
       </div>
     </Link>
   )

@@ -28,27 +28,27 @@ export const navItems = [
 
 export const actionsDropdownItems = [
   {
-    label: 'Rename',
+    label: '重命名',
     icon: '/assets/icons/edit.svg',
     value: 'rename',
   },
   {
-    label: 'Details',
+    label: '详情',
     icon: '/assets/icons/info.svg',
     value: 'details',
   },
   {
-    label: 'Share',
+    label: '分享',
     icon: '/assets/icons/share.svg',
     value: 'share',
   },
   {
-    label: 'Download',
+    label: '下载',
     icon: '/assets/icons/download.svg',
     value: 'download',
   },
   {
-    label: 'Delete',
+    label: '删除',
     icon: '/assets/icons/delete.svg',
     value: 'delete',
   },
