@@ -27,6 +27,8 @@ import { actionsDropdownItems } from '@/constants'
 import { renameFile } from '@/lib/actions/file.actions'
 import { constructDownloadUrl } from '@/lib/utils'
 
+import { FileDetails } from './ActionModalContent'
+
 const ActionDropdown = ({ file }: { file: any }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -89,7 +91,7 @@ const ActionDropdown = ({ file }: { file: any }) => {
               />
             </>
           )}
-          {value === 'details' && 'details'}
+          {value === 'details' && <FileDetails file={file} />}
           {value === 'share' && 'share'}
           {value === 'delete' && (
             <p className='delete-confirmation'>
