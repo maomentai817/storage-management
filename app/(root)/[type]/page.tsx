@@ -38,7 +38,7 @@ const page = async (props: SearchParamProps) => {
           </p>
 
           <div className='sort-container'>
-            <p className='body-1 hidden sm:block text-light-200'>Sort by:</p>
+            <p className='body-1 hidden sm:block text-light-200'>排序方式:</p>
 
             <Sort />
           </div>

@@ -56,27 +56,27 @@ export const actionsDropdownItems = [
 
 export const sortTypes = [
   {
-    label: 'Date created (newest)',
+    label: '创建日期(最新)',
     value: '$createdAt-desc',
   },
   {
-    label: 'Created Date (oldest)',
+    label: '创建日期(最早)',
     value: '$createdAt-asc',
   },
   {
-    label: 'Name (A-Z)',
+    label: '文件名(A-Z)',
     value: 'name-asc',
   },
   {
-    label: 'Name (Z-A)',
+    label: '文件名(Z-A)',
     value: 'name-desc',
   },
   {
-    label: 'Size (Highest)',
+    label: '大小(最高)',
     value: 'size-desc',
   },
   {
-    label: 'Size (Lowest)',
+    label: '大小(最低)',
     value: 'size-asc',
   },
 ]
