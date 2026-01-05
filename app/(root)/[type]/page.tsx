@@ -18,10 +18,13 @@ const page = async (props: SearchParamProps) => {
   const { params, searchParams } = props
 
   const type = ((await params)?.type as string) || ''
+  // 搜索
+  const searchText = ((await searchParams)?.query as string) || ''
+  const sort = ((await searchParams)?.sort as string) || ''
 
   // 文件列表
   const types = getFileTypesParams(type) as FileType[]
-  const files = await getFiles({ types })
+  const files = await getFiles({ types, searchText, sort })
 
   return (
     <div className='page-container'>
