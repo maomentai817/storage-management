@@ -5,7 +5,7 @@ import { ID, Query } from 'node-appwrite'
 import { InputFile } from 'node-appwrite/file'
 
 import { getCurrentUser } from '@/lib/actions/user.actions'
-import { createAdminClient } from '@/lib/appwrite'
+import { createAdminClient, createSessionClient } from '@/lib/appwrite'
 import { appwriteConfig } from '@/lib/appwrite/config'
 import {
   constructFileUrl,
@@ -206,5 +206,47 @@ export const deleteFile = async ({
     return parseStringify({ status: 'success' })
   } catch (error) {
     handleError(error, '删除文件失败')
+  }
+}
+
+// 获取总空间使用量
+export async function getTotalSpaceUsed() {
+  try {
+    const { databases } = await createSessionClient()
+    const currentUser = await getCurrentUser()
+    if (!currentUser) throw new Error('User is not authenticated.')
+
+    const files = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      [Query.equal('owner', [currentUser.$id])]
+    )
+
+    const totalSpace = {
+      image: { size: 0, latestDate: '' },
+      document: { size: 0, latestDate: '' },
+      video: { size: 0, latestDate: '' },
+      audio: { size: 0, latestDate: '' },
+      other: { size: 0, latestDate: '' },
+      used: 0,
+      all: 2 * 1024 * 1024 * 1024 /* 2GB available bucket storage */,
+    }
+
+    files.documents.forEach((file: any) => {
+      const fileType = file.type as FileType
+      totalSpace[fileType].size += file.size
+      totalSpace.used += file.size
+
+      if (
+        !totalSpace[fileType].latestDate ||
+        new Date(file.$updatedAt) > new Date(totalSpace[fileType].latestDate)
+      ) {
+        totalSpace[fileType].latestDate = file.$updatedAt
+      }
+    })
+
+    return parseStringify(totalSpace)
+  } catch (error) {
+    handleError(error, 'Error calculating total space used:, ')
   }
 }
